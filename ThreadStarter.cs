@@ -36,7 +36,7 @@ namespace ClustersCopyAndAnalyze
             // Task copy = CopyingService.CopyDirectoryAsync(sourcePath, targetPath, copyProgress);
             // await Task.WhenAll(analyzeOrigin, copy);
             try{
-                var beforeData = await ClusterAnalyzerService.AnalyzeDirectoryClustersAsync(sourcePath);
+                var beforeData = await ClusterAnalyzerService.AnalyzeFileClustersAsync(sourcePath);
                 var tableBefore = ClusterAnalyzerService.FormatToDT(beforeData);
                 new TableView(tableBefore, "Таблица до выполенния операций");
             }
@@ -44,7 +44,7 @@ namespace ClustersCopyAndAnalyze
                 MessageBox.Show(ex.Message);
             }
             await CopyingService.CopyDirectoryAsync(sourcePath, targetPath, copyProgress);
-            var afterData = await ClusterAnalyzerService.AnalyzeDirectoryClustersAsync(targetPath);
+            var afterData = await ClusterAnalyzerService.AnalyzeFileClustersAsync(targetPath);
             var tableAfter = ClusterAnalyzerService.FormatToDT(afterData);
             new TableView(tableAfter, "Таблица после выполенния операций");
         }

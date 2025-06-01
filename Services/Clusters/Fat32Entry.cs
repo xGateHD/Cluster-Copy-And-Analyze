@@ -19,6 +19,12 @@ public struct Fat32Entry
     public readonly bool IsEndOfChain => (Value & 0x0FFFFFFF) >= 0x0FFFFFF8; // Проверка конца цепочки
     public readonly bool IsBadCluster => (Value & 0x0FFFFFFF) == 0x0FFFFFF7;
 
-    public readonly override string ToString() => Value.ToString();
+    public readonly override string ToString()
+    {
+        if (IsBadCluster) return "Bad Cluster";
+        if (IsEndOfChain) return "Last Cluster in chain";
+        return Value.ToString();
+    }
+
     public readonly string ToString16() => $"0x{Value:X8}";
 }

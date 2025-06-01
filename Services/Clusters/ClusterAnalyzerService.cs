@@ -10,7 +10,6 @@ namespace ClustersCopyAndAnalyze.Services.Clusters;
 
 sealed class ClusterAnalyzerService
 {
-
     public enum AnalyzerProgressType : int
     {
         Проверяем_права_доступа = 0,
@@ -178,15 +177,32 @@ sealed class ClusterAnalyzerService
         }
     }
 
+    
     public static DataTable FormatToDT(List<ClusterData> list)
     {
-        DataTable table = new();
-        foreach (ClusterData rowData in list)
+        try
         {
-            table.Rows.Add(rowData.CurrentCluster, rowData.NextCluster, rowData.NextCluster.ToString16());
+            DataTable table = new();
+            DataColumn currentClusterCollumn = new("CurrentCluster", typeof(string));
+            DataColumn nextClusterCollumn = new("NextCluster", typeof(string));
+            DataColumn hexNextClusterInChainCollumn = new("HexNextClusterInChain", typeof(string));
+
+            table.Columns.Add(currentClusterCollumn);
+            table.Columns.Add(nextClusterCollumn);
+            table.Columns.Add(hexNextClusterInChainCollumn);
+            foreach (ClusterData rowData in list)
+            {
+                table.Rows.Add(rowData.CurrentCluster, rowData.NextCluster, rowData.NextCluster.ToString16());
+            }
+            return table;
+
         }
-        return table;
-    }
+        catch (Exception ex)
+        {
+            throw new Exception($"Ошибка конвертации List<ClusterData> в DataTable. Детали: {ex.Message}");
+        }
+
+     }
 
     #region Основные вспомогательные методы
 

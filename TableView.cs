@@ -16,8 +16,9 @@ namespace ClustersCopyAndAnalyze
         public TableView(DataTable table, string formName)
         {
             InitializeComponent();
+            ClusterInChainDataGrid.Columns.Clear();
             ClusterInChainDataGrid.DataSource = table;
-            Name = formName;
+            Text = formName;
             Show();
         }
 

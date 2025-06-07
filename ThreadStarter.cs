@@ -10,10 +10,11 @@ namespace ClustersCopyAndAnalyze
 {
     internal class ThreadStarter
     {
-        private Progress<ClusterAnalyzerService.AnalyzerProgressType> analyzeProgress;
+        private Progress<ТипПрогрессаАнализатора> analyzeProgress;
         private Progress<double> copyProgress;
+        private ClusterAnalyzerService clusterAnalyzerService = new();
 
-        public ThreadStarter(Progress<ClusterAnalyzerService.AnalyzerProgressType> analyzeProgress, Progress<double> copyProgress)
+        public ThreadStarter(Progress<ТипПрогрессаАнализатора> analyzeProgress, Progress<double> copyProgress)
         {
             this.analyzeProgress = analyzeProgress;
             this.copyProgress = copyProgress;
@@ -32,11 +33,13 @@ namespace ClustersCopyAndAnalyze
 
         public async void StartOperations(string sourcePath, string targetPath)
         {
+            CancellationTokenSource cts = new();
+            var token = cts.Token;
             // Task analyzeOrigin = ClusterAnalyzerService.DirectoryAnalyzeAsync(sourcePath, analyzeProgress);
             // Task copy = CopyingService.CopyDirectoryAsync(sourcePath, targetPath, copyProgress);
             // await Task.WhenAll(analyzeOrigin, copy);
             try{
-                var beforeData = await ClusterAnalyzerService.AnalyzeFileClustersAsync(sourcePath);
+                var beforeData = await clusterAnalyzerService.AnalyzeClusterAsync(sourcePath, token);
                 var tableBefore = ClusterAnalyzerService.FormatToDT(beforeData);
                 new TableView(tableBefore, "Таблица до выполенния операций");
             }
@@ -44,7 +47,7 @@ namespace ClustersCopyAndAnalyze
                 MessageBox.Show(ex.Message);
             }
             await CopyingService.CopyDirectoryAsync(sourcePath, targetPath, copyProgress);
-            var afterData = await ClusterAnalyzerService.AnalyzeFileClustersAsync(targetPath);
+            var afterData = await clusterAnalyzerService.AnalyzeClusterAsync(targetPath, token);
             var tableAfter = ClusterAnalyzerService.FormatToDT(afterData);
             new TableView(tableAfter, "Таблица после выполенния операций");
         }

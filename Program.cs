@@ -21,7 +21,7 @@ namespace CCAA
 
             Form1 view = new();
 
-            Progress<ClusterAnalyzerService.AnalyzerProgressType> analyzeProgress = new((type) => view.ShowProgress(type.ToString()));
+            Progress<“ипѕрогрессајнализатора> analyzeProgress = new((type) => view.ShowProgress(type.ToString()));
             Progress<double> copyProgress = new(view.ShowProgress);
 
             ThreadStarter starter = new(analyzeProgress, copyProgress);

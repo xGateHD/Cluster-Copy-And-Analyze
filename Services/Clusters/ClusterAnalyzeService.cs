@@ -30,7 +30,7 @@ public interface IClusterAnalyzerService
     Task<List<ClusterData>> AnalyzeClusterAsync(string fullPath, CancellationToken cancellationToken, IProgress<ТипПрогрессаАнализатора> progress = null);
 }
 
-public partial class GetFilesNames : IClusterAnalyzerService
+public partial class ClusterAnalyzeService : IClusterAnalyzerService
 {
     private readonly Regex filePathRegex = new(@"(?<=\\)[^\\]+?(?=\.[^\\.]+$|$)");
 

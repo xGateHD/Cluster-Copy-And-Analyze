@@ -34,6 +34,7 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
 {
     private readonly Regex filePathRegex = new(@"(?<=\\)[^\\]+?(?=\.[^\\.]+$|$)");
 
+
     public Task<List<ClusterData>> AnalyzeClusterAsync(string fullPath, CancellationToken cancellationToken, IProgress<ТипПрогрессаАнализатора> progress = null)
     {
         var allVolumes = RawDiskLib.Utils.GetAllAvailableVolumes().ToArray();
@@ -43,16 +44,30 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
             throw new ArgumentException("Проблема с чтением доступных томов на дисках");
         }
 
+        var cataloguePath = SplitPath(fullPath);
+        cataloguePath.RemoveAt(0);
+
         // List<string> catalogues = GetCataloguesNames(fullPath);
         // List<string> files = GetNamesOfFiles(fullPath);
         using RawDisk disk = new(fullPath[0]);
         int firstDataSector = GetFirstDataSector(disk, out int hui);
-        
-        byte[] firstDataSectorContains = disk.ReadSectors(firstDataSector, 3);
-        var firstClusterInChain = GetFirstsClustersInChain(firstDataSectorContains, files.ToArray());
+        var firstCluster = firstDataSector;
 
-        byte[] catalogSector = disk.ReadSectors(firstDataSector + (firstClusterInChain[0] - 2) * 8, 1);
-        var firstFileClusterInChain = GetFirstsClustersInChain(catalogSector, files.ToArray());
+        foreach (var path in cataloguePath)
+        {
+            var filesCount = Directory.GetFiles(path).Length;
+            var cataloguesCount = Directory.GetDirectories(path).Length;
+            var firstSector = FoundFirstClusterInChain(disk, firstCluster, filePathRegex.Match(path).Value, filesCount + cataloguesCount);
+            firstCluster = GetFirstCatalogueSector(firstDataSector, firstSector);
+        }
+
+        byte[] firstDataSectorContains = disk.ReadSectors(firstDataSector, 3);
+        // var firstClusterInChain = GetFirstsClustersInChain(firstDataSectorContains, files.ToArray());
+
+        // byte[] catalogSector = disk.ReadSectors(firstDataSector + (firstClusterInChain[0] - 2) * 8, 1);
+        // var firstFileClusterInChain = GetFirstsClustersInChain(catalogSector, files.ToArray());
+
+
 
         int a = 0;
         return null;
@@ -84,24 +99,50 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
 
     }
 
-    private List<int> GetFirstsClustersInChain(byte[] sector, string[] filesNames)
+
+    /// <summary>
+    /// Находит нужный дескриптор по его имени и считывает номер первого кластера распределенного файлу
+    /// </summary>
+    /// <param name="sector"></param>
+    /// <param name="fileName"></param>
+    /// <returns> Возвращает номер первого кластера, распределенного файлу </returns>
+    /// <exception cref="NullReferenceException"></exception>
+    private int FoundFirstClusterInChain(RawDisk disk, int firstSector, string fileName, int maxSectorCount)
     {
-        var result = new List<int>();
-        for (int i = 0; i < sector.Length; i += 32)
+
+        for (int sectorPointer = firstSector; sectorPointer < firstSector + maxSectorCount; sectorPointer++)
         {
-            Range fileNameRange = new(i, i + 8);
-            var bytesName = sector.Take(fileNameRange).ToArray();
-            var utf8 = Encoding.UTF8.GetString(bytesName);
-            if (!IsValidAscii(bytesName, out string currentFileName) || string.IsNullOrEmpty(currentFileName)) continue;
 
-            if (filesNames.Any(file => currentFileName.Contains(file)))
+            byte[] sector = disk.ReadSectors(sectorPointer, 1);
+            for (int i = 0; i < sector.Length; i += 32)
             {
-                int firstClusterNumber = BitConverter.ToInt16(sector, i + 26);
-                result.Add(firstClusterNumber);
+                Range fileNameRange = new(i, i + 8);
+                var bytesName = sector.Take(fileNameRange).ToArray();
 
+                if (!IsValidAscii(bytesName, out string currentFileName) || string.IsNullOrEmpty(currentFileName)) continue;
+
+                if (currentFileName.Contains(fileName.ToUpper()))
+                {
+                    int firstClusterNumber = BitConverter.ToInt16(sector, i + 26);
+                    return firstClusterNumber;
+
+                }
             }
         }
-        return result;
+        throw new NullReferenceException("Не удалось найти необходимый дескриптор каталога");
+
+    }
+
+
+    /// <summary>
+    /// Вычисляет номер первого сектора, распределеного каталогу
+    /// </summary>
+    /// <param name="firstDataSector"></param>
+    /// <param name="firstClusterNumber"></param>
+    /// <returns> Возвращает номер первого сектора, распределенного каталогу</returns>
+    private int GetFirstCatalogueSector(int firstDataSector, int firstClusterNumber)
+    {
+        return firstDataSector + (firstClusterNumber - 2) * 8;
     }
 
     private int GetFirstDataSector(RawDisk disk, out int fatSector)
@@ -144,5 +185,19 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
     {
         return Directory.GetFiles(fullPath, "*.*", SearchOption.AllDirectories)
             .Select(file => filePathRegex.Match(file).Value.ToUpper()).ToList();
+    }
+    public static List<string> SplitPath(string path)
+    {
+        var parts = path.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+        var result = new List<string>();
+        string current = "";
+
+        foreach (var part in parts)
+        {
+            current = Path.Combine(current, part);
+            result.Add(current);
+        }
+
+        return result;
     }
 }

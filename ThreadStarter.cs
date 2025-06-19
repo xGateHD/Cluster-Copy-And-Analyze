@@ -12,7 +12,7 @@ namespace ClustersCopyAndAnalyze
     {
         private Progress<ТипПрогрессаАнализатора> analyzeProgress;
         private Progress<double> copyProgress;
-        private ClusterAnalyzerService clusterAnalyzerService = new();
+        private GetFilesNames clusterAnalyzerService = new();
 
         public ThreadStarter(Progress<ТипПрогрессаАнализатора> analyzeProgress, Progress<double> copyProgress)
         {
@@ -40,7 +40,7 @@ namespace ClustersCopyAndAnalyze
             // await Task.WhenAll(analyzeOrigin, copy);
             try{
                 var beforeData = await clusterAnalyzerService.AnalyzeClusterAsync(sourcePath, token);
-                var tableBefore = ClusterAnalyzerService.FormatToDT(beforeData);
+                var tableBefore = GetFilesNames.FormatToDT(beforeData);
                 new TableView(tableBefore, "Таблица до выполенния операций");
             }
             catch(Exception ex){
@@ -48,7 +48,7 @@ namespace ClustersCopyAndAnalyze
             }
             await CopyingService.CopyDirectoryAsync(sourcePath, targetPath, copyProgress);
             var afterData = await clusterAnalyzerService.AnalyzeClusterAsync(targetPath, token);
-            var tableAfter = ClusterAnalyzerService.FormatToDT(afterData);
+            var tableAfter = GetFilesNames.FormatToDT(afterData);
             new TableView(tableAfter, "Таблица после выполенния операций");
         }
     }

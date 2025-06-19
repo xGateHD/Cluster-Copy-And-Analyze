@@ -3,6 +3,7 @@ using System;
 using ClustersCopyAndAnalyze.Services.Copy;
 using ClustersCopyAndAnalyze;
 using ClustersCopyAndAnalyze.Services.Clusters;
+using RawDiskLib;
 
 namespace CCAA
 
@@ -20,7 +21,6 @@ namespace CCAA
             // ApplicationConfiguration.Initialize();
 
             Form1 view = new();
-
             Progress<“ипѕрогрессајнализатора> analyzeProgress = new((type) => view.ShowProgress(type.ToString()));
             Progress<double> copyProgress = new(view.ShowProgress);
 

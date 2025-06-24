@@ -29,12 +29,14 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             contextMenuStrip1 = new ContextMenuStrip(components);
             menuStrip2 = new MenuStrip();
             fileOperationsToolStripMenuItem = new ToolStripMenuItem();
             selectPathsToolStripMenuItem = new ToolStripMenuItem();
             tableBeforeCopyToolStripMenuItem = new ToolStripMenuItem();
             tableAfterCopyToolStripMenuItem = new ToolStripMenuItem();
+            tableBeforeCopyToolStripMenuItem1 = new ToolStripMenuItem();
             infoToolStripMenuItem = new ToolStripMenuItem();
             contextMenuStrip2 = new ContextMenuStrip(components);
             OriginPathField = new TextBox();
@@ -44,7 +46,6 @@
             analyzeButton = new Button();
             progressBar = new ProgressBar();
             progressLabel = new Label();
-            tableBeforeCopyToolStripMenuItem1 = new ToolStripMenuItem();
             menuStrip2.SuspendLayout();
             SuspendLayout();
             // 
@@ -86,6 +87,13 @@
             tableAfterCopyToolStripMenuItem.Name = "tableAfterCopyToolStripMenuItem";
             tableAfterCopyToolStripMenuItem.Size = new Size(167, 22);
             tableAfterCopyToolStripMenuItem.Text = "Table after copy";
+            // 
+            // tableBeforeCopyToolStripMenuItem1
+            // 
+            tableBeforeCopyToolStripMenuItem1.Enabled = false;
+            tableBeforeCopyToolStripMenuItem1.Name = "tableBeforeCopyToolStripMenuItem1";
+            tableBeforeCopyToolStripMenuItem1.Size = new Size(167, 22);
+            tableBeforeCopyToolStripMenuItem1.Text = "Table before copy";
             // 
             // infoToolStripMenuItem
             // 
@@ -162,13 +170,6 @@
             progressLabel.TabIndex = 14;
             progressLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // tableBeforeCopyToolStripMenuItem1
-            // 
-            tableBeforeCopyToolStripMenuItem1.Enabled = false;
-            tableBeforeCopyToolStripMenuItem1.Name = "tableBeforeCopyToolStripMenuItem1";
-            tableBeforeCopyToolStripMenuItem1.Size = new Size(167, 22);
-            tableBeforeCopyToolStripMenuItem1.Text = "Table before copy";
-            // 
             // Form1
             // 
             AutoScaleMode = AutoScaleMode.None;
@@ -181,6 +182,7 @@
             Controls.Add(TargetPathField);
             Controls.Add(OriginPathField);
             Controls.Add(menuStrip2);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             Text = "Form1";
             menuStrip2.ResumeLayout(false);

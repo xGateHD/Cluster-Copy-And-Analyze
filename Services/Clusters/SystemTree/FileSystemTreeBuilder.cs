@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClustersCopyAndAnalyze.Services.Clusters.SystemTree;
+﻿namespace ClustersCopyAndAnalyze.Services.Clusters.SystemTree;
 
 static class FileSystemTreeBuilder
 {
-    public static DirectoryNode BuildTree(string targetPath)
+    public static DirectoryNode BuildTree(string targetPath, DirectoryNode parent = null)
     {
         if (!Directory.Exists(targetPath))
             throw new DirectoryNotFoundException($"Directory {targetPath} not found.");
 
-        var rootDirectory = new DirectoryNode(targetPath, parent: null);
+        var rootDirectory = new DirectoryNode(targetPath, parent);
 
         try
         {
             foreach (var dir in Directory.GetDirectories(targetPath))
             {
-
-                rootDirectory.Childrens.Add(BuildTree(dir));
+                rootDirectory.Childrens.Add(BuildTree(dir, rootDirectory));
             }
 
             // Process files

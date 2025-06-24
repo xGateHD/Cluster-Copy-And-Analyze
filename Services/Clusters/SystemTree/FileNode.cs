@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClustersCopyAndAnalyze.Services.Clusters.SystemTree
+﻿namespace ClustersCopyAndAnalyze.Services.Clusters.SystemTree
 {
     internal record FileNode : FileSystemNode
     {

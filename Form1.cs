@@ -38,7 +38,7 @@ namespace CCAA
         public void ShowProgress(double progress)
         {
             int progressInt = (int)(progress * 100);
-            progressBar.Value = progressInt;
+            progressBar.Value = Math.Clamp(progressInt, 0, 100);
         }
 
 

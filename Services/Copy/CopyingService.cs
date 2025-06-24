@@ -1,51 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClustersCopyAndAnalyze.Services.Copy;
+﻿namespace ClustersCopyAndAnalyze.Services.Copy;
 
 internal static class CopyingService
 {
     public static async Task CopyDirectoryAsync(string sourceDir, string destinationDir, IProgress<double> progress = null)
     {
         // Проверяем существование исходной директории
-        if (!Directory.Exists(sourceDir))
-            throw new DirectoryNotFoundException($"Source directory does not exist: {sourceDir}");
+        if (!ValidatePaths(sourceDir, destinationDir, out string errorMessage))
+            throw new DirectoryNotFoundException($"Source directory {sourceDir} not found.");
 
-        // Создаем целевую директорию, если она не существует
         Directory.CreateDirectory(destinationDir);
 
-        List<string> files = [];
-        foreach (var dir in GetAllDirectories(sourceDir))
+        string[] files = Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories);
+        double totalFiles = files.Length;
+        double copiedFiles = 0;
+
+        foreach (var file in Directory.GetFiles(sourceDir))
         {
-            files.AddRange(Directory.GetFiles(dir));
+            string destFile = Path.Combine(destinationDir, Path.GetFileName(file));
+            File.Copy(file, destFile, true);
+            copiedFiles++;
+            progress?.Report(copiedFiles / totalFiles * 100);
         }
 
-        // Получаем все файлы в исходной директории
-        for (int i = 0; i < files.Count; i++)
+        foreach (var dir in Directory.GetDirectories(sourceDir))
         {
-            string destFile = Path.Combine(destinationDir, Path.GetFileName(files[i]));
-            using FileStream sourceStream = new(files[i], FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous);
-            using FileStream destStream = new(destFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous);
-
-            progress?.Report(i + 1 / files.Count);
-            await sourceStream.CopyToAsync(destStream);
+            string destDir = Path.Combine(destinationDir, Path.GetFileName(dir));
+            await CopyDirectoryAsync(dir, destDir, progress);
         }
     }
 
-    private static List<string> GetAllDirectories(string path)
-    {
-        List<string> dirList = [path];
-        foreach (string subDir in Directory.GetDirectories(path))
-        {
-            dirList.Add(subDir); // Добавляем текущий подкаталог
-            dirList.AddRange(GetAllDirectories(subDir)); // Рекурсивно добавляем подкаталоги
-        }
-        return dirList;
-    }
-
+    
     /// <summary>
     /// Проверяет корректность исходного и целевого путей для копирования файлов.
     /// </summary>

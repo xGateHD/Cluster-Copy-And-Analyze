@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Enumeration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClustersCopyAndAnalyze.Services.Clusters.SystemTree;
+﻿namespace ClustersCopyAndAnalyze.Services.Clusters.SystemTree;
 
 internal record DirectoryNode : FileSystemNode
 {
-    public int? FirstSector { get; set; } = null;
+    public uint? FirstSector { get; set; } = null;
     public List<FileSystemNode> Childrens { get; } = [];
 
     public DirectoryNode(string fullPath, FileSystemNode parent) : base(fullPath, parent) { }
@@ -23,7 +16,7 @@ internal record DirectoryNode : FileSystemNode
     /// Вычисляет номер первого сектора, распределеного каталогу
     /// </summary>
     /// <param name="firstDataSector"></param>
-    public int CalculateSector(int firstDataSector)
+    public uint CalculateSector(uint firstDataSector)
     {
         FirstSector = firstDataSector + (FirstCluster - 2) * 8;
         return FirstSector.Value;

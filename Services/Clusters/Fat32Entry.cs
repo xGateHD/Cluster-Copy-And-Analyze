@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClustersCopyAndAnalyze.Services.Clusters;
+﻿namespace ClustersCopyAndAnalyze.Services.Clusters;
 
 public struct Fat32Entry
 {
@@ -19,7 +13,7 @@ public struct Fat32Entry
     public readonly bool IsEndOfChain => (Value & 0x0FFFFFFF) >= 0x0FFFFFF8; // Проверка конца цепочки
     public readonly bool IsBadCluster => (Value & 0x0FFFFFFF) == 0x0FFFFFF7;
 
-    public readonly override string ToString()
+    public override string ToString()
     {
         if (IsBadCluster) return "Bad Cluster";
         if (IsEndOfChain) return "Last Cluster in chain";

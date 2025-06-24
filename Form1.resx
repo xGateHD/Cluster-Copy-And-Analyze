@@ -126,4 +126,14 @@
   <metadata name="contextMenuStrip2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>402, 17</value>
   </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAICAAAAAAIADyAAAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAgAAAAIAgGAAAAc3p69AAAALlJ
+        REFUeJztl0EKQjEMRFNx5cJzuMqAnkfwSh7MD/UmrtwI31XRhNpQsD8iyW7a0jwmQ6GJmWdyrJVn8wAI
+        gAAgIlpbB67nLPR+exD6spmETnd5nk/H5v3uDgSAmYHemdONuwDcHQgAMwO9M9eZeRj3uzsQAGYGemeu
+        MwNqvwu/78A3KueXiwAWBNjNlNUEC0wBSSP/BbpZbW1YBmrN33XZdw/h/wJoq0u5hPBTARgLUAMBIPQi
+        AC2oJ3RtRP2eTJEPAAAAAElFTkSuQmCC
+</value>
+  </data>
 </root>

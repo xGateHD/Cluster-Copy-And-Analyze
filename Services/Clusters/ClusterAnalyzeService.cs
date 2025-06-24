@@ -1,4 +1,4 @@
-﻿using ClustersCopyAndAnalyze.Services.Clusters;
+﻿using ClustersCopyAndAnalyze.Services.Clusters.SystemTree;
 using RawDiskLib;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+
+namespace ClustersCopyAndAnalyze.Services.Clusters;
 
 public enum ТипПрогрессаАнализатора
 {
@@ -32,10 +35,9 @@ public interface IClusterAnalyzerService
 
 public partial class ClusterAnalyzeService : IClusterAnalyzerService
 {
-    private readonly Regex filePathRegex = new(@"(?<=\\)[^\\]+?(?=\.[^\\.]+$|$)");
+    
 
-
-    public Task<List<ClusterData>> AnalyzeClusterAsync(string fullPath, CancellationToken cancellationToken, IProgress<ТипПрогрессаАнализатора> progress = null)
+    public async Task<List<ClusterData>> AnalyzeClusterAsync(string fullPath, CancellationToken cancellationToken, IProgress<ТипПрогрессаАнализатора> progress = null)
     {
         var allVolumes = RawDiskLib.Utils.GetAllAvailableVolumes().ToArray();
 
@@ -47,21 +49,22 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
         var cataloguePath = SplitPath(fullPath);
         cataloguePath.RemoveAt(0);
 
-        // List<string> catalogues = GetCataloguesNames(fullPath);
-        // List<string> files = GetNamesOfFiles(fullPath);
         using RawDisk disk = new(fullPath[0]);
         int firstDataSector = GetFirstDataSector(disk, out int hui);
-        var firstCluster = firstDataSector;
+        var originSector = firstDataSector;
 
+        // Поиск оригинального сектора каталога
         foreach (var path in cataloguePath)
         {
             var filesCount = Directory.GetFiles(path).Length;
             var cataloguesCount = Directory.GetDirectories(path).Length;
-            var firstSector = FoundFirstClusterInChain(disk, firstCluster, filePathRegex.Match(path).Value, filesCount + cataloguesCount);
-            firstCluster = GetFirstCatalogueSector(firstDataSector, firstSector);
+            var firstCluster = FoundFirstClusterInChain(disk, originSector, FileUtils.GetFileName(path), filesCount + cataloguesCount);
+            originSector = GetFirstCatalogueSector(firstDataSector, firstCluster); //sosi
         }
 
-        byte[] firstDataSectorContains = disk.ReadSectors(firstDataSector, 3);
+        var targetCatalogue = FileSystemTreeBuilder.BuildTree(fullPath); //sosi2, sosi2/newtext.pdf, NOText.txt
+        targetCatalogue.FirstSector = originSector;
+
         // var firstClusterInChain = GetFirstsClustersInChain(firstDataSectorContains, files.ToArray());
 
         // byte[] catalogSector = disk.ReadSectors(firstDataSector + (firstClusterInChain[0] - 2) * 8, 1);
@@ -103,13 +106,14 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
     /// <summary>
     /// Находит нужный дескриптор по его имени и считывает номер первого кластера распределенного файлу
     /// </summary>
-    /// <param name="sector"></param>
-    /// <param name="fileName"></param>
+    /// <param name="firstSector"> Первый сектор, в котором находжится содержимое каталога, т.е. все дескрипторы</param>
+    /// <param name="fileName"> Имя файла, который мы будем искать</param>
+    /// <param name="maxSectorCount"> Максимальное число секторов, которое будет считываться 
+    /// от первого сектора, распределенного файлу</param>
     /// <returns> Возвращает номер первого кластера, распределенного файлу </returns>
     /// <exception cref="NullReferenceException"></exception>
     private int FoundFirstClusterInChain(RawDisk disk, int firstSector, string fileName, int maxSectorCount)
     {
-
         for (int sectorPointer = firstSector; sectorPointer < firstSector + maxSectorCount; sectorPointer++)
         {
 
@@ -167,26 +171,7 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
         return true;
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="fullPath">Путь к каталогу</param>
-    /// <returns>Все имена файлов и каталогов включая родительский</returns>
-    private List<string> GetCataloguesNames(string fullPath)
-    {
-        List<string> files = new() { filePathRegex.Match(fullPath).Value };
-
-        files.AddRange(Directory.GetDirectories(fullPath, "*.*", SearchOption.AllDirectories)
-            .Select(file => filePathRegex.Match(file).Value.ToUpper()));
-        return files;
-    }
-
-    private List<string> GetNamesOfFiles(string fullPath)
-    {
-        return Directory.GetFiles(fullPath, "*.*", SearchOption.AllDirectories)
-            .Select(file => filePathRegex.Match(file).Value.ToUpper()).ToList();
-    }
-    public static List<string> SplitPath(string path)
+    private static List<string> SplitPath(string path)
     {
         var parts = path.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
         var result = new List<string>();

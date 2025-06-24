@@ -9,11 +9,10 @@ namespace ClustersCopyAndAnalyze.Services.Clusters.SystemTree
     internal record FileNode : FileSystemNode
     {
         public string FileExtension { get; }
-        public int? FirstCluster { get; set; } = null;
 
         public FileNode(string fullPath, FileSystemNode parent) : base(fullPath, parent)
         {
-            FileExtension = Path.GetExtension(fullPath);
+            FileExtension = Path.GetExtension(fullPath).TrimStart('.');
 
         }
     }

@@ -35,7 +35,7 @@ public interface IClusterAnalyzerService
 
 public partial class ClusterAnalyzeService : IClusterAnalyzerService
 {
-    
+    private int firstDataSector;
 
     public async Task<List<ClusterData>> AnalyzeClusterAsync(string fullPath, CancellationToken cancellationToken, IProgress<ТипПрогрессаАнализатора> progress = null)
     {
@@ -50,27 +50,27 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
         cataloguePath.RemoveAt(0);
 
         using RawDisk disk = new(fullPath[0]);
-        int firstDataSector = GetFirstDataSector(disk, out int hui);
+        firstDataSector = GetFirstDataSector(disk, out int fatSector, out int sectorsPerFAT);
         var originSector = firstDataSector;
 
         // Поиск оригинального сектора каталога
         foreach (var path in cataloguePath)
         {
-            var filesCount = Directory.GetFiles(path).Length;
             var cataloguesCount = Directory.GetDirectories(path).Length;
-            var firstCluster = FoundFirstClusterInChain(disk, originSector, FileUtils.GetFileName(path), filesCount + cataloguesCount);
+            var filesCount = Directory.GetFiles(path).Length;
+            var firstCluster = FoundFirstClusterInChain(disk, originSector, FileUtils.GetFileName(path), 
+                cataloguesCount + filesCount);
             originSector = GetFirstCatalogueSector(firstDataSector, firstCluster); //sosi
         }
 
+
+
         var targetCatalogue = FileSystemTreeBuilder.BuildTree(fullPath); //sosi2, sosi2/newtext.pdf, NOText.txt
         targetCatalogue.FirstSector = originSector;
+        FoundClustersInTree(disk, targetCatalogue);
 
-        // var firstClusterInChain = GetFirstsClustersInChain(firstDataSectorContains, files.ToArray());
-
-        // byte[] catalogSector = disk.ReadSectors(firstDataSector + (firstClusterInChain[0] - 2) * 8, 1);
-        // var firstFileClusterInChain = GetFirstsClustersInChain(catalogSector, files.ToArray());
-
-
+        byte[] loadedFATInMemory = disk.ReadSectors(fatSector, sectorsPerFAT);
+        
 
         int a = 0;
         return null;
@@ -102,6 +102,31 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
 
     }
 
+    private void FoundClustersInTree(RawDisk disk, DirectoryNode originNode)
+    {
+        foreach (var children in originNode.Childrens)
+        {
+            FoundFirstClusterInChain(disk, children);
+
+            if (children is DirectoryNode dir)
+            {
+                FoundClustersInTree(disk, dir);
+            }
+        }
+    }
+
+    private void BuildClusterChain(DirectoryNode originNode, byte[] loadedFATInMemory)
+    {
+        foreach (var children in originNode.Childrens)
+        {
+            
+
+            if (children is DirectoryNode dir)
+            {
+                BuildClusterChain(dir, loadedFATInMemory);
+            }
+        }
+    }
 
     /// <summary>
     /// Находит нужный дескриптор по его имени и считывает номер первого кластера распределенного файлу
@@ -112,11 +137,48 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
     /// от первого сектора, распределенного файлу</param>
     /// <returns> Возвращает номер первого кластера, распределенного файлу </returns>
     /// <exception cref="NullReferenceException"></exception>
+    private int FoundFirstClusterInChain(RawDisk disk, FileSystemNode node)
+    {
+        var dir = node.Parent as DirectoryNode;
+        int firstSector = (dir.FirstSector == null) ? dir.CalculateSector(firstDataSector) : dir.FirstSector.Value;
+
+        for (int sectorPointer = firstSector; sectorPointer < firstSector + dir.Childrens.Count; sectorPointer++)
+        {
+            byte[] sector = disk.ReadSectors(sectorPointer, 1);
+            for (int i = 0; i < sector.Length; i += 32)
+            {
+                Range fileNameRange = new(i, i + 8);
+                var bytesName = sector.Take(fileNameRange).ToArray();
+
+                if (!IsValidAscii(bytesName, out string currentFileName) || string.IsNullOrEmpty(currentFileName)) continue;
+
+                if (node is FileNode fileNode)
+                {
+                    Range fileExtensionRange = new(i + 8, i + 11);
+                    var bytesExtension = sector.Take(fileExtensionRange).ToArray();
+                    if (!IsValidAscii(bytesExtension, out string currentFileExtension)) continue;
+                    if (!currentFileExtension.Contains(fileNode.FileExtension, StringComparison.CurrentCultureIgnoreCase)) continue;
+                }
+
+                if (currentFileName.Contains(node.Name, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    int firstClusterNumber = BitConverter.ToInt16(sector, i + 26);
+                    node.FirstCluster = firstClusterNumber;
+                    if (node is DirectoryNode dirNode) dirNode.CalculateSector(firstDataSector);
+                    return firstClusterNumber;
+                }
+
+            }
+        }
+        throw new NullReferenceException("Не удалось найти необходимый дескриптор каталога");
+    }
+
+
+
     private int FoundFirstClusterInChain(RawDisk disk, int firstSector, string fileName, int maxSectorCount)
     {
         for (int sectorPointer = firstSector; sectorPointer < firstSector + maxSectorCount; sectorPointer++)
         {
-
             byte[] sector = disk.ReadSectors(sectorPointer, 1);
             for (int i = 0; i < sector.Length; i += 32)
             {
@@ -137,7 +199,6 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
 
     }
 
-
     /// <summary>
     /// Вычисляет номер первого сектора, распределеного каталогу
     /// </summary>
@@ -149,12 +210,12 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
         return firstDataSector + (firstClusterNumber - 2) * 8;
     }
 
-    private int GetFirstDataSector(RawDisk disk, out int fatSector)
+    private int GetFirstDataSector(RawDisk disk, out int fatSector, out int sectorsPerFAT)
     {
         var bootSector = disk.ReadSectors(0, 1);
         int reservedSectors = BitConverter.ToInt16([bootSector[14], bootSector[15]], 0);
         fatSector = reservedSectors + 1;
-        int sectorsPerFAT = BitConverter.ToInt16(bootSector.Skip(36).Take(4).ToArray(), 0);
+        sectorsPerFAT = BitConverter.ToInt16(bootSector.Skip(36).Take(4).ToArray(), 0);
         int firstDataSector = reservedSectors + sectorsPerFAT * 2;
         return firstDataSector;
     }
@@ -185,4 +246,5 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
 
         return result;
     }
+
 }

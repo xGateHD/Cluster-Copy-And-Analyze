@@ -47,7 +47,6 @@
             ClusterInChainDataGrid.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             ClusterInChainDataGrid.Size = new Size(748, 598);
             ClusterInChainDataGrid.TabIndex = 4;
-            ClusterInChainDataGrid.CellContentClick += dataGridView1_CellContentClick;
             // 
             // CurrentCluster
             // 

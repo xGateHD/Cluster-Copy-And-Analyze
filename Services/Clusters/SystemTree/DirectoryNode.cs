@@ -18,4 +18,14 @@ internal record DirectoryNode : FileSystemNode
     {
         Childrens = childrens;
     }
+
+    /// <summary>
+    /// Вычисляет номер первого сектора, распределеного каталогу
+    /// </summary>
+    /// <param name="firstDataSector"></param>
+    public int CalculateSector(int firstDataSector)
+    {
+        FirstSector = firstDataSector + (FirstCluster - 2) * 8;
+        return FirstSector.Value;
+    }
 }

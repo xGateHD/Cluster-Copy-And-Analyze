@@ -8,9 +8,9 @@ namespace ClustersCopyAndAnalyze.Services.Clusters;
 
 public struct Fat32Entry
 {
-    public ulong Value;
+    public uint Value;
 
-    public Fat32Entry(ulong value)
+    public Fat32Entry(uint value)
     {
         Value = value;
     }

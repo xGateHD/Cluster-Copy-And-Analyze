@@ -22,7 +22,7 @@ namespace CCAA
         {
             TargetPathField.Text = SelectExplorerFolder();
         }
-        
+
         private void analyzeButton_Click(object sender, EventArgs e)
         {
             OnTryStart?.Invoke(OriginPathField.Text, TargetPathField.Text);
@@ -34,7 +34,7 @@ namespace CCAA
         {
             progressLabel.Text = progress;
         }
-        
+
         public void ShowProgress(double progress)
         {
             int progressInt = (int)(progress * 100);
@@ -58,6 +58,19 @@ namespace CCAA
                 return folderDialog.SelectedPath; // ¬озвращаем путь к выбранной папке
             }
             return string.Empty;
+        }
+
+        private void infoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string helpText =
+                "—правка по функци€м:\n\n" +
+                "Х ƒвойной клик по полю 'OriginPathField' Ч открыть диалог выбора исходной папки.\n" +
+                "Х ƒвойной клик по полю 'TargetPathField' Ч открыть диалог выбора целевой папки.\n" +
+                "Х  нопка 'Analyze' Ч запускает анализ, вызыва€ метод OnTryStart(sourcePath, destPath).\n" +
+                "Х ѕрогресс отображаетс€ в 'progressLabel' (текст) и 'progressBar' (графически).\n\n" +
+                "Х ћеню '»нфо' Ч вызывает эту справку.";
+
+            MessageBox.Show(helpText, "—правка", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

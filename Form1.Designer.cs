@@ -32,11 +32,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             contextMenuStrip1 = new ContextMenuStrip(components);
             menuStrip2 = new MenuStrip();
-            fileOperationsToolStripMenuItem = new ToolStripMenuItem();
-            selectPathsToolStripMenuItem = new ToolStripMenuItem();
-            tableBeforeCopyToolStripMenuItem = new ToolStripMenuItem();
-            tableAfterCopyToolStripMenuItem = new ToolStripMenuItem();
-            tableBeforeCopyToolStripMenuItem1 = new ToolStripMenuItem();
             infoToolStripMenuItem = new ToolStripMenuItem();
             contextMenuStrip2 = new ContextMenuStrip(components);
             OriginPathField = new TextBox();
@@ -56,50 +51,19 @@
             // 
             // menuStrip2
             // 
-            menuStrip2.Items.AddRange(new ToolStripItem[] { fileOperationsToolStripMenuItem, selectPathsToolStripMenuItem, infoToolStripMenuItem });
+            menuStrip2.Items.AddRange(new ToolStripItem[] { infoToolStripMenuItem });
             menuStrip2.Location = new Point(0, 0);
             menuStrip2.Name = "menuStrip2";
             menuStrip2.Size = new Size(804, 24);
             menuStrip2.TabIndex = 6;
             menuStrip2.Text = "menuStrip2";
             // 
-            // fileOperationsToolStripMenuItem
-            // 
-            fileOperationsToolStripMenuItem.Name = "fileOperationsToolStripMenuItem";
-            fileOperationsToolStripMenuItem.Size = new Size(96, 20);
-            fileOperationsToolStripMenuItem.Text = "File operations";
-            // 
-            // selectPathsToolStripMenuItem
-            // 
-            selectPathsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { tableBeforeCopyToolStripMenuItem, tableAfterCopyToolStripMenuItem, tableBeforeCopyToolStripMenuItem1 });
-            selectPathsToolStripMenuItem.Name = "selectPathsToolStripMenuItem";
-            selectPathsToolStripMenuItem.Size = new Size(46, 20);
-            selectPathsToolStripMenuItem.Text = "Table";
-            // 
-            // tableBeforeCopyToolStripMenuItem
-            // 
-            tableBeforeCopyToolStripMenuItem.Name = "tableBeforeCopyToolStripMenuItem";
-            tableBeforeCopyToolStripMenuItem.Size = new Size(167, 22);
-            tableBeforeCopyToolStripMenuItem.Text = "Table before copy";
-            // 
-            // tableAfterCopyToolStripMenuItem
-            // 
-            tableAfterCopyToolStripMenuItem.Name = "tableAfterCopyToolStripMenuItem";
-            tableAfterCopyToolStripMenuItem.Size = new Size(167, 22);
-            tableAfterCopyToolStripMenuItem.Text = "Table after copy";
-            // 
-            // tableBeforeCopyToolStripMenuItem1
-            // 
-            tableBeforeCopyToolStripMenuItem1.Enabled = false;
-            tableBeforeCopyToolStripMenuItem1.Name = "tableBeforeCopyToolStripMenuItem1";
-            tableBeforeCopyToolStripMenuItem1.Size = new Size(167, 22);
-            tableBeforeCopyToolStripMenuItem1.Text = "Table before copy";
-            // 
             // infoToolStripMenuItem
             // 
             infoToolStripMenuItem.Name = "infoToolStripMenuItem";
             infoToolStripMenuItem.Size = new Size(40, 20);
             infoToolStripMenuItem.Text = "Info";
+            infoToolStripMenuItem.Click += infoToolStripMenuItem_Click;
             // 
             // contextMenuStrip2
             // 
@@ -184,7 +148,7 @@
             Controls.Add(menuStrip2);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
-            Text = "Form1";
+            Text = "Анализатор кластеров,";
             menuStrip2.ResumeLayout(false);
             menuStrip2.PerformLayout();
             ResumeLayout(false);
@@ -194,11 +158,7 @@
         #endregion
         private ContextMenuStrip contextMenuStrip1;
         private MenuStrip menuStrip2;
-        private ToolStripMenuItem fileOperationsToolStripMenuItem;
-        private ToolStripMenuItem selectPathsToolStripMenuItem;
         private ToolStripMenuItem infoToolStripMenuItem;
-        private ToolStripMenuItem tableBeforeCopyToolStripMenuItem;
-        private ToolStripMenuItem tableAfterCopyToolStripMenuItem;
         private ContextMenuStrip contextMenuStrip2;
         private TextBox OriginPathField;
         private TextBox TargetPathField;
@@ -207,6 +167,5 @@
         private Button analyzeButton;
         private ProgressBar progressBar;
         private Label progressLabel;
-        private ToolStripMenuItem tableBeforeCopyToolStripMenuItem1;
     }
 }

@@ -52,11 +52,11 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
             var filesCount = Directory.GetFiles(path).Length;
             var firstCluster = FoundFirstClusterInChain(disk, originSector, FileUtils.GetFileName(path),
                 (uint)(cataloguesCount + filesCount));
-            originSector = GetFirstCatalogueSector(firstDataSector, firstCluster); //sosi
+            originSector = GetFirstCatalogueSector(firstDataSector, firstCluster);
         }
 
         progress.Report(ТипПрогрессаАнализатора.ПостроениеДревовиднойСтруктурыКаталогов);
-        var targetCatalogue = FileSystemTreeBuilder.BuildTree(fullPath); //sosi2, sosi2/newtext.pdf, NOText.txt
+        var targetCatalogue = FileSystemTreeBuilder.BuildTree(fullPath); 
         targetCatalogue.FirstSector = originSector;
 
         progress.Report(ТипПрогрессаАнализатора.ИщемДескрипторыФайловИКаталоговВДревовиднойСтруктуре);
@@ -174,8 +174,6 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
         }
     }
 
-
-
     /// <summary>
     /// Находит нужный дескриптор по его имени и считывает номер первого кластера распределенного файлу
     /// </summary>
@@ -227,8 +225,6 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
         }
         throw new NullReferenceException("Не удалось найти необходимый дескриптор каталога");
     }
-
-
 
     private uint FoundFirstClusterInChain(RawDisk disk, uint firstSector, string fileName, uint maxSectorCount)
     {
@@ -301,6 +297,4 @@ public partial class ClusterAnalyzeService : IClusterAnalyzerService
 
         return result;
     }
-
-
 }

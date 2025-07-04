@@ -1,0 +1,1 @@
+Application for copying directory structure and analyze all files and directories include subdirectories. The analysis involves displaying on the screen chains of clusters distributed among files and directories. For now work ONLY with SHORT FILE NAMES of 8.3 format.

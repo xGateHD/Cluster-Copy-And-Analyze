@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ClusterAnalyzer\**" />
+    <EmbeddedResource Remove="ClusterAnalyzer\**" />
+    <None Remove="ClusterAnalyzer\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="RawDiskLib" Version="0.2.1" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>

@@ -1,15 +1,15 @@
-﻿namespace ClustersCopyAndAnalyze.Services.Clusters.SystemTree;
+﻿namespace ClusterAnalyzer.SystemTree;
 
 internal record DirectoryNode : FileSystemNode
 {
-    public uint? FirstSector { get; set; } = null;
-    public List<FileSystemNode> Childrens { get; } = [];
+    public uint? FirstSector { get; private set; } = null;
+    public List<FileSystemNode> Children { get; init; } = [];
 
-    public DirectoryNode(string fullPath, FileSystemNode parent) : base(fullPath, parent) { }
+    public DirectoryNode(string fullPath, FileSystemNode? parent) : base(fullPath, parent) { }
 
     public DirectoryNode(string fullPath, List<FileSystemNode> childrens, FileSystemNode parent) : base(fullPath, parent)
     {
-        Childrens = childrens;
+        Children = childrens;
     }
 
     /// <summary>
@@ -19,6 +19,6 @@ internal record DirectoryNode : FileSystemNode
     public uint CalculateSector(uint firstDataSector)
     {
         FirstSector = firstDataSector + (FirstCluster - 2) * 8;
-        return FirstSector.Value;
+        return FirstSector ?? throw new InvalidOperationException("FirstSector is null."); // Added null check to handle CS8629
     }
 }

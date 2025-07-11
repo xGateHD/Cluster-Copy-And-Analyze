@@ -1,19 +1,11 @@
-﻿using ClustersCopyAndAnalyze.Services.Clusters;
+﻿using ClusterAnalyzer;
 using ClustersCopyAndAnalyze.Services.Copy;
 
 namespace ClustersCopyAndAnalyze
 {
-    internal class ThreadStarter
+    internal class ThreadStarter(Progress<AnalysisPhase> analyzeProgress, Progress<double> copyProgress)
     {
-        private Progress<ТипПрогрессаАнализатора> analyzeProgress;
-        private Progress<double> copyProgress;
-        private ClusterAnalyzeService clusterAnalyzerService = new();
-
-        public ThreadStarter(Progress<ТипПрогрессаАнализатора> analyzeProgress, Progress<double> copyProgress)
-        {
-            this.analyzeProgress = analyzeProgress;
-            this.copyProgress = copyProgress;
-        }
+        private readonly ClusterAnalyzeService clusterAnalyzerService = new();
 
         public void TryStartOperation(string sourcePath, string targetPath)
         {
@@ -31,16 +23,16 @@ namespace ClustersCopyAndAnalyze
             CancellationTokenSource cts = new();
             var token = cts.Token;
             try{
-                var beforeData = await clusterAnalyzerService.AnalyzeClusterAsync(sourcePath, token, analyzeProgress);
-                
-                new TableView(beforeData, "Таблица до выполенния операций");
+                var beforeData = await clusterAnalyzerService.AnalyzeFAT32Cluster(sourcePath, token, analyzeProgress);
+
+                _ = new TableView(beforeData, "Таблица до выполенния операций");
             }
             catch(Exception ex){
                 MessageBox.Show(ex.Message);
             }
             await CopyingService.CopyDirectoryAsync(sourcePath, targetPath, copyProgress);
-            var afterData = await clusterAnalyzerService.AnalyzeClusterAsync(targetPath, token, analyzeProgress);
-            new TableView(afterData, "Таблица после выполенния операций");
+            var afterData = await clusterAnalyzerService.AnalyzeFAT32Cluster(targetPath, token, analyzeProgress);
+            _ = new TableView(afterData, "Таблица после выполенния операций");
         }
     }
 }

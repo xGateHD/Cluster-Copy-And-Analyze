@@ -1,7 +1,7 @@
-using ClustersCopyAndAnalyze;
+п»їusing CCAA;
 using ClustersCopyAndAnalyze.Services.Clusters;
 
-namespace CCAA
+namespace ClustersCopyAndAnalyze
 
 {
     static class Program
@@ -17,14 +17,14 @@ namespace CCAA
             // ApplicationConfiguration.Initialize();
 
             Form1 view = new();
-            Progress<ТипПрогрессаАнализатора> analyzeProgress = new((type) => view.ShowProgress(type.ToString()));
+            Progress<РўРёРїРџСЂРѕРіСЂРµСЃСЃР°РђРЅР°Р»РёР·Р°С‚РѕСЂР°> analyzeProgress = new((type) => view.ShowProgress(type.ToString()));
             Progress<double> copyProgress = new(view.ShowProgress);
 
             ThreadStarter starter = new(analyzeProgress, copyProgress);
-            // Подписываем форму на выполнение операций по нажатию кнопки
+            // РџРѕРґРїРёСЃС‹РІР°РµРј С„РѕСЂРјСѓ РЅР° РІС‹РїРѕР»РЅРµРЅРёРµ РѕРїРµСЂР°С†РёР№ РїРѕ РЅР°Р¶Р°С‚РёСЋ РєРЅРѕРїРєРё
             view.OnTryStart += starter.TryStartOperation;
 
-            // Запускаем само приложение
+            // Р—Р°РїСѓСЃРєР°РµРј СЃР°РјРѕ РїСЂРёР»РѕР¶РµРЅРёРµ
             Application.Run(view);
         }
     }

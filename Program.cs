@@ -1,5 +1,5 @@
 ﻿using CCAA;
-using ClustersCopyAndAnalyze.Services.Clusters;
+using ClusterAnalyzer;
 
 namespace ClustersCopyAndAnalyze
 
@@ -17,7 +17,7 @@ namespace ClustersCopyAndAnalyze
             // ApplicationConfiguration.Initialize();
 
             Form1 view = new();
-            Progress<ТипПрогрессаАнализатора> analyzeProgress = new((type) => view.ShowProgress(type.ToString()));
+            Progress<AnalysisPhase> analyzeProgress = new((type) => view.ShowProgress(type.ToString()));
             Progress<double> copyProgress = new(view.ShowProgress);
 
             ThreadStarter starter = new(analyzeProgress, copyProgress);

@@ -23,7 +23,7 @@ namespace ClustersCopyAndAnalyze
             CancellationTokenSource cts = new();
             var token = cts.Token;
             try{
-                var beforeData = await clusterAnalyzerService.AnalyzeFAT32Cluster(sourcePath, token, analyzeProgress);
+                var beforeData = await clusterAnalyzerService.AnalyzeFAT32Async(sourcePath, analyzeProgress, token);
 
                 _ = new TableView(beforeData, "Таблица до выполенния операций");
             }
@@ -31,7 +31,7 @@ namespace ClustersCopyAndAnalyze
                 MessageBox.Show(ex.Message);
             }
             await CopyingService.CopyDirectoryAsync(sourcePath, targetPath, copyProgress);
-            var afterData = await clusterAnalyzerService.AnalyzeFAT32Cluster(targetPath, token, analyzeProgress);
+            var afterData = await clusterAnalyzerService.AnalyzeFAT32Async(targetPath, analyzeProgress, token);
             _ = new TableView(afterData, "Таблица после выполенния операций");
         }
     }

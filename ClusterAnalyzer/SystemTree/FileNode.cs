@@ -1,6 +1,6 @@
 ﻿namespace ClusterAnalyzer.SystemTree;
 
-internal record FileNode : FileSystemNode
+public record FileNode : FileSystemNode
 {
     public string FileExtension { get; }
 

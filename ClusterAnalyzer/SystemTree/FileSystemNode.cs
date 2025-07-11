@@ -1,6 +1,6 @@
 ﻿namespace ClusterAnalyzer.SystemTree;
 
-internal abstract record FileSystemNode
+public abstract record FileSystemNode
 {
     public string FullPath { get; init; }
     public string Name { get; init; }

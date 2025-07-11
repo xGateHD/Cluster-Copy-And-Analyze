@@ -1,6 +1,6 @@
 ﻿namespace ClusterAnalyzer.SystemTree;
 
-internal record DirectoryNode : FileSystemNode
+public record DirectoryNode : FileSystemNode
 {
     public uint? FirstSector { get; private set; } = null;
     public List<FileSystemNode> Children { get; init; } = [];
